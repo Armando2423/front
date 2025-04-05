@@ -1,10 +1,11 @@
-// archivo sw.js
+
+// SERVICE WORKER => 'sw.js' 
 const APP_SHELL_CACHE = 'AppShellv6';
 const DYNAMIC_CACHE = 'DinamicoV6';
 
 const APP_SHELL_FILES = [
-  '/',
-  '/index.html',
+  '/', 
+  '/index.html', 
   '/offline.html',
   '/index.css',
   '/App.css',
@@ -21,9 +22,9 @@ const APP_SHELL_FILES = [
   '/screenshots/cap1.png'
 ];
 
-/* self.addEventListener('install', event => {
+self.addEventListener('install', event => {
   self.skipWaiting();  // Forzar la instalación del nuevo SW
-}); */
+});
 
 // Instalación del Service Worker y caché
 self.addEventListener('install', event => {
@@ -53,7 +54,6 @@ function InsertIndexedDB(data) {
     request.onsuccess = () => {
       console.log("Datos guardados en IndexedDB");
       if (self.registration.sync) {
-        self.registration.showNotification("Usuarios sincronizados con éxito");
         self.registration.sync.register("syncUsuarios").catch(err => {
           console.error("Error al registrar la sincronización:", err);
         });
@@ -72,20 +72,18 @@ self.addEventListener('fetch', event => {
 
   if (event.request.method === "POST") {
     event.respondWith(
-      (async () => {
-        try {
-          const body = await event.request.clone().json();
-          return await fetch(event.request);
-        } catch (error) {
-          const body = await event.request.clone().json().catch(() => ({}));
-          InsertIndexedDB(body);
-          return new Response(JSON.stringify({ message: "Datos guardados offline" }), {
-            headers: { "Content-Type": "application/json" }
-          });
-        }
-      })()
+      event.request.clone().json()
+        .then(body => 
+          fetch(event.request)
+            .catch(() => {
+              InsertIndexedDB(body);
+              return new Response(JSON.stringify({ message: "Datos guardados offline" }), {
+                headers: { "Content-Type": "application/json" }
+              });
+            })
+        )
+        .catch(error => console.error("Error en fetch POST:", error))
     );
-
   } else {
     event.respondWith(
       fetch(event.request)
@@ -136,20 +134,16 @@ self.addEventListener('sync', event => {
             );
 
             Promise.all(postPromises)
-            Promise.all(postPromises)
-              .then(async responses => {
-                const db = event.target.result;
-                const transaction = db.transaction("Usuarios", "readwrite");
-                const store = transaction.objectStore("Usuarios");
-
-                responses.forEach(async (res, idx) => {
-                  if (res.ok) {
-                    const id = usuarios[idx].id;
-                    store.delete(id);
-                  }
-                });
+              .then(responses => {
+                let success = responses.every(response => response.ok);
+                if (success) {
+                  let deleteTransaction = db.transaction("Usuarios", "readwrite");
+                  let deleteStore = deleteTransaction.objectStore("Usuarios");
+                  deleteStore.clear().onsuccess = () => console.log("Usuarios sincronizados y eliminados.");
+                } else {
+                  console.error("Algunas respuestas fallaron:", responses);
+                }
               })
-
               .catch(error => {
                 console.error("Error al sincronizar con la API:", error);
                 reject(error);
@@ -190,12 +184,12 @@ self.addEventListener('activate', event => {
 
 self.addEventListener("push", (event) => {
 
-  let options = {
-    body: event.data.text(),
-    body: "Hola, cómo estás?",
-    image: "./icons/sao_1.png",
+  let options={
+      body:event.data.text(),
+       body: "Hola, cómo estás?",
+      image: "./icons/sao_1.png",
   }
-
-  self.registration.showNotification("Titulo", options);
-
+  
+  self.registration.showNotification("Titulo",options); 
+   
 });

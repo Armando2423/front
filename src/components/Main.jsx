@@ -11,6 +11,30 @@ function Main() {
   const userRole = localStorage.getItem("userRole");
 
   useEffect(() => {
+    const resetIndexedDB = async () => {
+      const dbName = "MiDB"; // Usa el nombre correcto de tu base de datos
+  
+      const deleteRequest = indexedDB.deleteDatabase(dbName);
+  
+      deleteRequest.onsuccess = () => {
+        console.log("🗑️ Base de datos eliminada con éxito");
+        // Si quieres volver a crearla desde cero, hazlo aquí.
+      };
+  
+      deleteRequest.onerror = (event) => {
+        console.error("❌ Error al eliminar la base de datos:", event);
+      };
+  
+      deleteRequest.onblocked = () => {
+        console.warn("⚠️ Eliminación bloqueada. Cierra otras pestañas usando la base de datos.");
+      };
+    };
+  
+    resetIndexedDB(); // ⚠️ Esto la borra cada vez que recargas. Úsalo con cuidado
+  }, []);
+  
+
+  useEffect(() => {
     if (userRole === "admin") {
       fetch("https://back-3lko.onrender.com/auth/users")
         .then((response) => {
@@ -68,6 +92,8 @@ function Main() {
   useEffect(() => {
     registerServiceWorker();
   }, []);
+
+  
 
   const handleSendMessage = async (user) => {
     try {

@@ -13,6 +13,8 @@ import { BrowserRouter } from 'react-router-dom';
 .catch(error => console.error("Error al registrar el Service Worker:", error));
 */
 
+
+
 let db = window.indexedDB.open('database');
 
 db.onupgradeneeded = event => {

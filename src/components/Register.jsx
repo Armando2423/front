@@ -1,146 +1,158 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Modal from 'react-modal';
+
+Modal.setAppElement('#root');
 
 const Register = () => {
   const [nombre, setNombre] = useState('');
-  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [pendingUsers, setPendingUsers] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
+    const handleOnline = () => {
+      setIsOnline(true);
+      checkPendingUsers();
+    };
     const handleOffline = () => setIsOnline(false);
-  
+
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
-  
+
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
   }, []);
 
+  const checkPendingUsers = () => {
+    let dbRequest = indexedDB.open("database", 2);
+
+    dbRequest.onsuccess = (event) => {
+      const db = event.target.result;
+
+      if (db.objectStoreNames.contains("Usuarios")) {
+        const transaction = db.transaction("Usuarios", "readonly");
+        const store = transaction.objectStore("Usuarios");
+
+        const getAllRequest = store.getAll();
+
+        getAllRequest.onsuccess = () => {
+          if (getAllRequest.result.length > 0) {
+            setPendingUsers(getAllRequest.result);
+            setShowModal(true);
+          }
+        };
+      }
+    };
+  };
+
+  const resendData = async () => {
+    for (let user of pendingUsers) {
+      try {
+        const response = await fetch('https://back-3lko.onrender.com/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(user),
+        });
+
+        if (response.ok) {
+          console.log("✅ Usuario reenviado:", user.email);
+        }
+      } catch (error) {
+        console.error("❌ Error al reenviar:", user.email, error);
+      }
+    }
+
+    // Limpiar IndexedDB
+    let dbRequest = indexedDB.open("database", 2);
+    dbRequest.onsuccess = (event) => {
+      const db = event.target.result;
+      const transaction = db.transaction("Usuarios", "readwrite");
+      const store = transaction.objectStore("Usuarios");
+      store.clear();
+    };
+
+    setPendingUsers([]);
+    setShowModal(false);
+    alert("Datos reenviados correctamente.");
+    navigate('/login');
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
-  
+
     if (!isOnline) {
-      setError('No estás conectado a Internet. Los datos se guardarán localmente.');
+      setError('Sin conexión. Guardado localmente.');
       insertIndexedDB({ email, nombre, password });
       return;
     }
-  
+
     try {
       const response = await fetch('https://back-3lko.onrender.com/auth/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, nombre, password }),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
-        alert('Registro exitoso. Ahora puedes iniciar sesión.');
+        alert('Registro exitoso.');
         navigate('/login');
       } else {
         setError(data.message || 'Error al registrarte.');
       }
     } catch (err) {
-      setError('No se pudo conectar al servidor. Inténtalo nuevamente.');
+      setError('No se pudo conectar al servidor.');
     }
   };
 
-  function insertIndexedDB(data) {
-    let dbRequest = window.indexedDB.open("database", 2); // Asegúrate de usar una versión específica
-  
+  const insertIndexedDB = (data) => {
+    const dbRequest = indexedDB.open("database", 2);
+
     dbRequest.onupgradeneeded = (event) => {
       const db = event.target.result;
-  
-      // Crear el object store 'Usuarios' si no existe
       if (!db.objectStoreNames.contains("Usuarios")) {
-        db.createObjectStore("Usuarios", { keyPath: "id", autoIncrement: true });
-        console.log("✅ 'Usuarios' object store creado.");
-      } else {
-        console.log("⚠️ 'Usuarios' object store ya existe.");
+        db.createObjectStore("Usuarios", { keyPath: "email" });
       }
     };
-  
+
     dbRequest.onsuccess = (event) => {
       const db = event.target.result;
-  
-      // Verificar si el object store existe antes de insertar los datos
-      if (db.objectStoreNames.contains("Usuarios")) {
-        const transaction = db.transaction("Usuarios", "readwrite");
-        const objStore = transaction.objectStore("Usuarios");
-  
-        const addRequest = objStore.add(data);
-  
-        addRequest.onsuccess = () => {
-          console.log("✅ Datos insertados en IndexedDB:", addRequest.result);
-  
-          // Sincronizar datos si el navegador soporta Background Sync
-          if ('serviceWorker' in navigator && 'SyncManager' in window) {
-            navigator.serviceWorker.ready
-              .then((registration) => {
-                console.log("Intentando registrar la sincronización...");
-                return registration.sync.register("syncUsuarios");
-              })
-              .then(() => {
-                console.log("✅ Sincronización registrada con éxito");
-              })
-              .catch((err) => {
-                console.error("❌ Error registrando la sincronización:", err);
-              });
-          } else {
-            console.warn("⚠️ Background Sync no es soportado en este navegador.");
-          }
-        };
-  
-        addRequest.onerror = () => {
-          console.error("❌ Error insertando en IndexedDB");
-        };
-      } else {
-        console.error("❌ El object store 'Usuarios' no existe.");
-      }
+      const transaction = db.transaction("Usuarios", "readwrite");
+      const store = transaction.objectStore("Usuarios");
+      store.put(data);
     };
-  
-    dbRequest.onerror = () => {
-      console.error("❌ Error abriendo IndexedDB");
-    };
-  }
-  
+  };
 
   return (
     <div style={styles.container}>
       <form style={styles.form} onSubmit={handleRegister}>
         <h2 style={styles.heading}>Registro</h2>
         {error && <div style={styles.error}>{error}</div>}
-        <input
-          type="text"
-          placeholder="Nombre"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-          style={styles.input}
-        />
-        <input
-          type="email"
-          placeholder="Correo Electrónico"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={styles.input}
-        />
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={styles.input}
-        />
+        <input type="text" placeholder="Nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} style={styles.input} />
+        <input type="email" placeholder="Correo Electrónico" value={email} onChange={(e) => setEmail(e.target.value)} style={styles.input} />
+        <input type="password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} style={styles.input} />
         <button type="submit" style={styles.button}>Registrar</button>
       </form>
+
+      <Modal isOpen={showModal} onRequestClose={() => setShowModal(false)} contentLabel="Usuarios pendientes" style={modalStyles}>
+        <h2>Usuarios pendientes de registro</h2>
+        <ul>
+          {pendingUsers.map((user, index) => (
+            <li key={index}><strong>{user.nombre}</strong> ({user.email})</li>
+          ))}
+        </ul>
+        <button onClick={resendData} style={styles.button}>Reenviar datos</button>
+        <button onClick={() => setShowModal(false)} style={{ ...styles.button, backgroundColor: 'gray' }}>Cancelar</button>
+      </Modal>
     </div>
   );
 };
@@ -173,8 +185,6 @@ const styles = {
     border: '1px solid #ddd',
     borderRadius: '5px',
     fontSize: '1rem',
-    outline: 'none',
-    transition: 'border-color 0.3s',
   },
   button: {
     width: '100%',
@@ -185,11 +195,25 @@ const styles = {
     borderRadius: '5px',
     fontSize: '1.2rem',
     cursor: 'pointer',
-    transition: 'background-color 0.3s ease',
+    marginTop: '10px'
   },
   error: {
     color: '#f44336',
     marginBottom: '10px',
+  },
+};
+
+const modalStyles = {
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    transform: 'translate(-50%, -50%)',
+    padding: '40px',
+    borderRadius: '10px',
+    width: '400px',
+    textAlign: 'center',
   },
 };
 
