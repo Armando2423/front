@@ -11,12 +11,18 @@ const APP_SHELL_FILES = [
   '/App.css',
   '/App.jsx',
   '/main.jsx',
-  '/components/Home.jsx',
-  '/components/Login.jsx',
-  '/components/Register.jsx',
+  '/imgs/fire1.png',
+  '/components/splashScreen/SplashScreen.jsx',
+  '/components/login/Login.jsx',
+  '/components/register/Register.jsx',
+  '/components/users/Users.jsx',
   '/icons/sao_1.png',
   '/icons/sao_2.png',
   '/icons/sao_3.png',
+  '/icons/carga.png',
+  '/icons/fire1.png',
+  '/icons/fire2.png',
+  '/icons/fire3.png',
   '/icons/carga.png',
   '/screenshots/cap.png',
   '/screenshots/cap1.png'
@@ -182,14 +188,39 @@ self.addEventListener('activate', event => {
 });
 
 
-self.addEventListener("push", (event) => {
+/* self.addEventListener("push", (event) => {
+ 
+  let data = {};
+
+  try{
+    data = JSON.parse(event.data.text());
+
+  } catch(e) {
+    console.error("Error al enviar la notificaciñon PUSH", e);
+  }
 
   let options={
-      body:event.data.text(),
-       body: "Hola, cómo estás?",
-      image: "./icons/sao_1.png",
+      body: event.data.text(),
+       body: `Gracias ${data.nombre} por usar mi PWA`,
+      image: "./icons/fire2.png",
+      icon: "./icons/fire3.png"
   }
   
-  self.registration.showNotification("Titulo",options); 
+  self.registration.showNotification("PWA, push",options); 
    
+}); */
+
+
+self.addEventListener("push", function (event) {
+  const data = event.data.json();
+
+  const options = {
+    body: data.body,
+    icon: "/icons/fire3.png",
+    image: "./icons/fire2.png"
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
 });

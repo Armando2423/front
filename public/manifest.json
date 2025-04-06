@@ -1,46 +1,25 @@
 {
-  "name": "SAO",
-  "short_name": "pwa",
+  "name": "front_pwa",
+  "short_name": "firePWA",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FFFFFF",
-  "theme_color": "#4CAF50",
-  "description": "Esta es una aplicación web progresiva (PWA) para enviar notificaciones.",
+  "background_color": "#15110e",
+  "theme_color": "#ff2d00",
+  "description": "This is my PWA",
   "icons": [
     {
-      "src": "/icons/sao_3.png",
-      "sizes": "92x92",
+      "src": "/icons/fire3.png",
+      "sizes": "100x100",
       "type": "image/png"
     },
     {
-      "src": "/icons/sao_2.png",
+      "src": "/icons/fire2.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/fire1.png",
       "sizes": "512x512",
-      "type": "image/png"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshots/cap.png",
-      "sizes": "1863x945",
-      "type": "image/png",
-      "form_factor": "wide"
-    },
-    {
-      "src": "/screenshots/cap1.png",
-      "sizes": "1080x548",
-      "type": "image/png",
-      "form_factor": "narrow"
-    }
-  ],
-  "splash_icons": [
-    {
-      "src": "/icons/carga.png",
-      "sizes": "320x320",
-      "type": "image/png"
-    },
-    {
-      "src": "/icons/carga.png",
-      "sizes": "640x640",
       "type": "image/png"
     }
   ]

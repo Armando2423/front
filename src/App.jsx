@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Login from './components/Login';
-import Register from './components/Register';
-import Home from './components/Home'; // Importar la página principal
-import SplashScreen from './components/SplashScreen'; // Importa el componente SplashScreen
-import Main from './components/Main';
+import Login from './components/login/Login';
+import Register from './components/register/Register';
+import SplashScreen from './components/splashScreen/SplashScreen'; // Importa el componente SplashScreen
+import Users from './components/users/Users';
 
 const App = () => {
   const [isSplashDone, setSplashDone] = useState(false);
@@ -15,10 +14,9 @@ const App = () => {
   };
 
   useEffect(() => {
-    // Simula el tiempo de carga del Splash Screen (3 segundos)
     const timer = setTimeout(() => {
-      onLoaded();  // Llama a la función onLoaded después de 3 segundos
-    }, 3000); // 3 segundos
+      onLoaded(); 
+    }, 3000); 
 
     return () => clearTimeout(timer); // Limpiar el temporizador cuando el componente se desmonte
   }, []);
@@ -29,10 +27,10 @@ const App = () => {
         <SplashScreen onLoaded={onLoaded} /> 
       ) : (
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/main" element={<Main />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Login />} />
+       {/*    <Route path="/login" element={<Login />} /> */}
           <Route path="/register" element={<Register />} />
+          <Route path="/users" element={<Users />} />
         </Routes>
       )}
     </>
