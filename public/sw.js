@@ -4,12 +4,11 @@ const DYNAMIC_CACHE = 'DinamicoV6';
 const APP_SHELL_FILES = [
   '/',
   '/index.html',
-  '/offline.html',
   '/index.css',
   '/App.css',
   '/App.jsx',
   '/main.jsx',
-  '/components/splashScreen/SplashScreen',
+  '/components/splashScreen/SplashScreen.jsx',
   '/components/login/Login.jsx',
   '/components/register/Register.jsx',
   '/components/users/Users.jsx',
