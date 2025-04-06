@@ -108,7 +108,7 @@ const Register = () => {
 
       if (response.ok) {
         alert('Registro exitoso.');
-        navigate('/login');
+        navigate('/');
       } else {
         setError(data.message || 'Error al registrarte.');
       }
