@@ -187,40 +187,27 @@ self.addEventListener('activate', event => {
   );
 });
 
-
-/* self.addEventListener("push", (event) => {
- 
+self.addEventListener("push", (event) => {
   let data = {};
 
-  try{
-    data = JSON.parse(event.data.text());
-
-  } catch(e) {
-    console.error("Error al enviar la notificaciñon PUSH", e);
+  try {
+    data = event.data.json();
+  } catch (e) {
+    try {
+      data = JSON.parse(event.data.text());
+    } catch (err) {
+      console.error("No se pudo parsear el push event:", err);
+      data = { title: "Notificación", body: "Contenido no reconocido" };
+    }
   }
-
-  let options={
-      body: event.data.text(),
-       body: `Gracias ${data.nombre} por usar mi PWA`,
-      image: "./icons/fire2.png",
-      icon: "./icons/fire3.png"
-  }
-  
-  self.registration.showNotification("PWA, push",options); 
-   
-}); */
-
-
-self.addEventListener("push", function (event) {
-  const data = event.data.json();
 
   const options = {
-    body: data.body,
+    body: data.body || `Gracias ${data.nombre || 'usuario'} por usar mi PWA`,
     icon: "/icons/fire3.png",
     image: "./icons/fire2.png"
   };
 
   event.waitUntil(
-    self.registration.showNotification(data.title, options)
+    self.registration.showNotification(data.title || "PWA", options)
   );
 });
