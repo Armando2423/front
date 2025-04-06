@@ -6,16 +6,15 @@ import { BrowserRouter } from 'react-router-dom';
 
 // Inicializar IndexedDB
 
-/*navigator.serviceWorker.register('./sw.js', { type: 'module' })
+/*
+*/
+let db = window.indexedDB.open('database');
+
+navigator.serviceWorker.register('./sw.js', { type: 'module' })
 .then((registro) => {
   console.log("Service Worker registrado correctamente:", registro);
 })
 .catch(error => console.error("Error al registrar el Service Worker:", error));
-*/
-
-
-
-let db = window.indexedDB.open('database');
 
 db.onupgradeneeded = event => {
   let result = event.target.result;

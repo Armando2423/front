@@ -9,9 +9,10 @@ const APP_SHELL_FILES = [
   '/App.css',
   '/App.jsx',
   '/main.jsx',
-  '/components/Home.jsx',
-  '/components/Login.jsx',
-  '/components/Register.jsx',
+  '/components/splashScreen/SplashScreen',
+  '/components/login/Login.jsx',
+  '/components/register/Register.jsx',
+  '/components/users/Users.jsx',
   '/icons/sao_1.png',
   '/icons/sao_2.png',
   '/icons/sao_3.png',
@@ -124,7 +125,7 @@ self.addEventListener('sync', event => {
             }
 
             let postPromises = usuarios.map(user =>
-              fetch('https://backend-be7l.onrender.com/auth/register', {
+              fetch('https://back-3lko.onrender.com/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(user)
