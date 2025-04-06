@@ -1,28 +1,20 @@
-
-// SERVICE WORKER => 'sw.js' 
 const APP_SHELL_CACHE = 'AppShellv6';
 const DYNAMIC_CACHE = 'DinamicoV6';
 
 const APP_SHELL_FILES = [
-  '/', 
-  '/index.html', 
+  '/',
+  '/index.html',
   '/offline.html',
   '/index.css',
   '/App.css',
   '/App.jsx',
   '/main.jsx',
-  '/imgs/fire1.png',
-  '/components/splashScreen/SplashScreen.jsx',
-  '/components/login/Login.jsx',
-  '/components/register/Register.jsx',
-  '/components/users/Users.jsx',
+  '/components/Home.jsx',
+  '/components/Login.jsx',
+  '/components/Register.jsx',
   '/icons/sao_1.png',
   '/icons/sao_2.png',
   '/icons/sao_3.png',
-  '/icons/carga.png',
-  '/icons/fire1.png',
-  '/icons/fire2.png',
-  '/icons/fire3.png',
   '/icons/carga.png',
   '/screenshots/cap.png',
   '/screenshots/cap1.png'
@@ -79,7 +71,7 @@ self.addEventListener('fetch', event => {
   if (event.request.method === "POST") {
     event.respondWith(
       event.request.clone().json()
-        .then(body => 
+        .then(body =>
           fetch(event.request)
             .catch(() => {
               InsertIndexedDB(body);
@@ -132,7 +124,7 @@ self.addEventListener('sync', event => {
             }
 
             let postPromises = usuarios.map(user =>
-              fetch('https://back-3lko.onrender.com/auth/register', {
+              fetch('https://backend-be7l.onrender.com/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(user)
@@ -188,16 +180,17 @@ self.addEventListener('activate', event => {
 });
 
 
-self.addEventListener("push", function (event) {
+self.addEventListener("push", (event) => {
+
   const data = event.data.json();
 
-  const options = {
+  let options = {
     body: data.body,
-    icon: "/icons/fire3.png",
-    image: "./icons/fire2.png"
+    image: "./icons/fire2.png",
+    icon: "./icons/fire3.png"
   };
-
   event.waitUntil(
+
     self.registration.showNotification(data.title, options)
-  );
+);
 });
