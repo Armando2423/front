@@ -1,26 +1,29 @@
 const APP_SHELL_CACHE = 'AppShellv6';
 const DYNAMIC_CACHE = 'DinamicoV6';
 
-const APP_SHELL_FILES = [
-  '/', 
-  '/index.html', 
-/*   '/offline.html', */
+ const APP_SHELL_FILES = [
+  '/',
+  '/index.html',
   '/index.css',
   '/App.css',
   '/App.jsx',
   '/main.jsx',
- /*  '/components/Home.jsx', */
+  '/components/splashScreen/SplashScreen.jsx',
   '/components/login/Login.jsx',
   '/components/register/Register.jsx',
-  '/components/splashScreen/SplashScreen.jsx',
   '/components/users/Users.jsx',
+  '/icons/sao_1.png',
+  '/icons/sao_2.png',
+  '/icons/sao_3.png',
   '/icons/fire1.png',
   '/icons/fire2.png',
   '/icons/fire3.png',
+  '/imgs/fire1.png',
   '/icons/carga.png',
   '/screenshots/cap.png',
   '/screenshots/cap1.png'
 ];
+
 
 self.addEventListener('install', event => {
   self.skipWaiting();  // Forzar la instalación del nuevo SW
@@ -29,9 +32,10 @@ self.addEventListener('install', event => {
 // Instalación del Service Worker y caché
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(APP_SHELL_CACHE).then(cache => cache.addAll(APP_SHELL_FILES))
-  );
-  self.skipWaiting();
+    caches.open(APP_SHELL_CACHE)
+    .then(cache => cache.addAll(APP_SHELL_FILES))
+    .then(() => self.skipWaiting())
+);
 });
 
 // Guardar en IndexedDB en caso de fallo de red
