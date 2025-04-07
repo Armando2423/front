@@ -9,6 +9,7 @@ const APP_SHELL_FILES = [
   '/App.css',
   '/App.jsx',
   '/main.jsx',
+  '/imgs/fire1.png',
  /*  '/components/Home.jsx', */
   '/components/login/Login.jsx',
   '/components/register/Register.jsx',
